@@ -309,7 +309,7 @@ struct SettingsView: View {
                     Text("•")
                     Link("ProtonDB", destination: URL(string: "https://www.protondb.com")!)
                     Text("•")
-                    Link("Gcenx/wine-on-mac", destination: URL(string: "https://github.com/Gcenx/wine-on-mac")!)
+                    Link("Gcenx Homebrew Tap", destination: URL(string: "https://github.com/Gcenx/homebrew-wine")!)
                 }
                 .font(.caption)
             }

@@ -148,19 +148,18 @@ struct WineManagerView: View {
                     copyableCommand: "brew tap gcenx/wine && brew install --cask wine-stable"
                 )
                 
-                // Manual download
+                // WineHQ Official
                 InstallMethodCard(
-                    title: "Manual Download",
-                    description: "Download Wine directly from the Gcenx releases page.",
+                    title: "WineHQ Official",
+                    description: "Download official Wine builds from WineHQ.org for macOS.",
                     icon: "arrow.down.circle.fill",
                     color: .green,
                     steps: [
-                        "Visit github.com/Gcenx/wine-on-mac/releases",
-                        "Download the latest Wine .pkg or .dmg",
-                        "Run the installer",
+                        "Visit wiki.winehq.org/MacOS",
+                        "Follow the installation instructions",
                         "Click Refresh above when complete"
                     ],
-                    link: URL(string: "https://github.com/Gcenx/wine-on-mac/releases")
+                    link: URL(string: "https://wiki.winehq.org/MacOS")
                 )
             }
         }

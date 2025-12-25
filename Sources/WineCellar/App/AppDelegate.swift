@@ -7,6 +7,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         Logger.shared.info("WineCellar launched", category: .app)
         
+        // Ensure app appears in Dock and menu bar (needed when running as executable, not .app bundle)
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate(ignoringOtherApps: true)
+        
         // Ensure application support directories exist
         Task {
             do {
