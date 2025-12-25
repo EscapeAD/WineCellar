@@ -43,3 +43,4 @@ extension Notification.Name {
     static let checkWineUpdates = Notification.Name("checkWineUpdates")
 }
 
+

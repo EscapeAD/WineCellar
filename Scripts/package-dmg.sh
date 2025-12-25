@@ -161,3 +161,4 @@ echo ""
 echo "Output: ${DMG_PATH}"
 echo "Size: $(du -h "${DMG_PATH}" | cut -f1)"
 
+

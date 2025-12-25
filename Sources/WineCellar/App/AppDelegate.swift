@@ -46,3 +46,4 @@ extension Notification.Name {
     static let installExecutable = Notification.Name("installExecutable")
 }
 
+
