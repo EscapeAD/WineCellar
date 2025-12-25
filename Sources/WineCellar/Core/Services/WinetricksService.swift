@@ -162,7 +162,7 @@ actor WinetricksService {
         }
         
         // Download winetricks
-        let cacheDir = await FileSystemManager.shared.winetricksURL
+        let cacheDir = FileSystemManager.shared.winetricksURL
         let winetricksFile = cacheDir.appendingPathComponent("winetricks")
         
         if FileManager.default.isExecutableFile(atPath: winetricksFile.path) {

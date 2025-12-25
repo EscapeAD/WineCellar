@@ -215,6 +215,74 @@ actor FileSystemManager {
         progress?(1.0)
     }
     
+    /// Copy directory recursively
+    func copyDirectory(from source: URL, to destination: URL, progress: (@Sendable (Double) -> Void)? = nil) async throws {
+        // Check source is a directory
+        var isDir: ObjCBool = false
+        guard fileManager.fileExists(atPath: source.path, isDirectory: &isDir), isDir.boolValue else {
+            throw NSError(domain: "FileSystemManager", code: -1, userInfo: [
+                NSLocalizedDescriptionKey: "Source is not a directory: \(source.path)"
+            ])
+        }
+        
+        // Remove existing destination
+        if fileManager.fileExists(atPath: destination.path) {
+            try fileManager.removeItem(at: destination)
+        }
+        
+        // Create destination directory
+        try fileManager.createDirectory(at: destination, withIntermediateDirectories: true)
+        
+        // Get all items recursively to calculate total size
+        guard let enumerator = fileManager.enumerator(at: source, includingPropertiesForKeys: [.fileSizeKey, .isDirectoryKey]) else {
+            throw NSError(domain: "FileSystemManager", code: -1, userInfo: [
+                NSLocalizedDescriptionKey: "Failed to enumerate source directory"
+            ])
+        }
+        
+        var totalSize: Int64 = 0
+        var items: [(URL, Bool)] = []  // (url, isDirectory)
+        
+        for case let fileURL as URL in enumerator {
+            let resourceValues = try fileURL.resourceValues(forKeys: [.fileSizeKey, .isDirectoryKey])
+            let isDirectory = resourceValues.isDirectory ?? false
+            items.append((fileURL, isDirectory))
+            if !isDirectory {
+                totalSize += Int64(resourceValues.fileSize ?? 0)
+            }
+        }
+        
+        var copiedSize: Int64 = 0
+        
+        // Copy each item
+        for (fileURL, isDirectory) in items {
+            let relativePath = fileURL.path.replacingOccurrences(of: source.path, with: "")
+            let destURL = destination.appendingPathComponent(relativePath)
+            
+            if isDirectory {
+                try fileManager.createDirectory(at: destURL, withIntermediateDirectories: true)
+            } else {
+                // Ensure parent directory exists
+                let parentDir = destURL.deletingLastPathComponent()
+                if !fileManager.fileExists(atPath: parentDir.path) {
+                    try fileManager.createDirectory(at: parentDir, withIntermediateDirectories: true)
+                }
+                
+                try fileManager.copyItem(at: fileURL, to: destURL)
+                
+                // Update progress
+                if let fileSize = try? fileURL.resourceValues(forKeys: [.fileSizeKey]).fileSize {
+                    copiedSize += Int64(fileSize)
+                    if totalSize > 0 {
+                        progress?(Double(copiedSize) / Double(totalSize))
+                    }
+                }
+            }
+        }
+        
+        progress?(1.0)
+    }
+    
     /// Get size of directory
     func directorySize(at url: URL) throws -> Int64 {
         try fileManager.allocatedSizeOfDirectory(at: url)
@@ -260,7 +328,7 @@ actor FileSystemManager {
 // MARK: - Homebrew Detection
 extension FileSystemManager {
     /// Common Homebrew paths
-    var homebrewPaths: [URL] {
+    nonisolated var homebrewPaths: [URL] {
         [
             URL(fileURLWithPath: "/usr/local"),           // Intel Mac
             URL(fileURLWithPath: "/opt/homebrew"),        // Apple Silicon
@@ -268,22 +336,22 @@ extension FileSystemManager {
         ]
     }
     
-    /// Find Homebrew prefix
-    func findHomebrewPrefix() -> URL? {
+    /// Find Homebrew prefix (nonisolated - only reads from filesystem)
+    nonisolated func findHomebrewPrefix() -> URL? {
         for path in homebrewPaths {
             let binPath = path.appendingPathComponent("bin/brew")
-            if fileManager.isExecutableFile(atPath: binPath.path) {
+            if FileManager.default.isExecutableFile(atPath: binPath.path) {
                 return path
             }
         }
         return nil
     }
     
-    /// Find Homebrew Cask directory
-    func findHomebrewCaskroom() -> URL? {
+    /// Find Homebrew Cask directory (nonisolated - only reads from filesystem)
+    nonisolated func findHomebrewCaskroom() -> URL? {
         guard let prefix = findHomebrewPrefix() else { return nil }
         let caskroom = prefix.appendingPathComponent("Caskroom")
-        return fileManager.fileExists(atPath: caskroom.path) ? caskroom : nil
+        return FileManager.default.fileExists(atPath: caskroom.path) ? caskroom : nil
     }
 }
 

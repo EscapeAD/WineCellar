@@ -56,7 +56,7 @@ final class WineService: ObservableObject {
     
     /// Detect Wine from Homebrew
     private func detectHomebrewWine() async -> [WineVersion]? {
-        guard let caskroom = await fileSystemManager.findHomebrewCaskroom() else {
+        guard let caskroom = fileSystemManager.findHomebrewCaskroom() else {
             return nil
         }
         

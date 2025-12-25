@@ -145,8 +145,8 @@ final class PrefixService: ObservableObject {
         
         Logger.shared.info("Duplicating prefix '\(prefix.name)' to '\(newName)'", category: .prefix)
         
-        // Copy directory
-        try await fileSystemManager.copyFile(from: prefix.path, to: newPath)
+        // Copy directory recursively
+        try await fileSystemManager.copyDirectory(from: prefix.path, to: newPath)
         
         // Create new prefix object
         let newPrefix = WinePrefix(
@@ -260,8 +260,22 @@ final class PrefixService: ObservableObject {
     
     /// Create metadata for a legacy prefix (without prefix.json)
     private func createMetadataForLegacyPrefix(at path: URL) async -> WinePrefix? {
-        guard let idString = UUID(uuidString: path.lastPathComponent) ?? nil else {
-            // Check if it's a named prefix (like "steam")
+        // Check if the directory name is a valid UUID
+        if let existingId = UUID(uuidString: path.lastPathComponent) {
+            // Directory name is a UUID - use it as the prefix ID
+            let prefix = WinePrefix(
+                id: existingId,
+                name: "Imported Prefix",
+                path: path,
+                architecture: .win64,
+                windowsVersion: .win10,
+                dxvkEnabled: true
+            )
+            
+            try? await savePrefix(prefix)
+            return prefix
+        } else {
+            // Directory name is not a UUID - it's a named prefix (like "steam")
             let id = UUID()
             let name = path.lastPathComponent
             
@@ -277,18 +291,6 @@ final class PrefixService: ObservableObject {
             try? await savePrefix(prefix)
             return prefix
         }
-        
-        let prefix = WinePrefix(
-            id: idString,
-            name: "Imported Prefix",
-            path: path,
-            architecture: .win64,
-            windowsVersion: .win10,
-            dxvkEnabled: true
-        )
-        
-        try? await savePrefix(prefix)
-        return prefix
     }
 }
 
