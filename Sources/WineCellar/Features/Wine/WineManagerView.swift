@@ -132,34 +132,69 @@ struct WineManagerView: View {
             Text("Installation Guide")
                 .font(.headline)
             
+            // Apple Silicon notice
+            #if arch(arm64)
+            HStack {
+                Image(systemName: "apple.logo")
+                Text("Apple Silicon detected - Rosetta 2 may be required for some Wine builds")
+                    .font(.caption)
+            }
+            .padding(8)
+            .background(Color.orange.opacity(0.2))
+            .cornerRadius(6)
+            #endif
+            
             VStack(alignment: .leading, spacing: 16) {
-                // Homebrew method (recommended)
+                // Step 1: XQuartz
                 InstallMethodCard(
-                    title: "Homebrew (Recommended)",
-                    description: "Install Wine via the Gcenx Homebrew tap. This is the easiest and most reliable method.",
+                    title: "Step 1: Install XQuartz (Required)",
+                    description: "XQuartz provides X11 windowing required by Wine. Restart your Mac after installation.",
+                    icon: "display",
+                    color: .purple,
+                    steps: [
+                        "Open Terminal",
+                        "Run: brew install --cask xquartz",
+                        "Log out and back in (or restart)",
+                    ],
+                    copyableCommand: "brew install --cask xquartz"
+                )
+                
+                // Step 2: Wine
+                InstallMethodCard(
+                    title: "Step 2: Install Wine (Homebrew)",
+                    description: "Install Wine stable via Homebrew. The --no-quarantine flag bypasses macOS Gatekeeper.",
                     icon: "terminal.fill",
                     color: .blue,
                     steps: [
                         "Open Terminal",
-                        "Run: brew tap gcenx/wine",
-                        "Run: brew install --cask wine-stable",
+                        "Run: brew install --cask --no-quarantine wine-stable",
                         "Click Refresh above when complete"
                     ],
-                    copyableCommand: "brew tap gcenx/wine && brew install --cask wine-stable"
+                    copyableCommand: "brew install --cask --no-quarantine wine-stable"
                 )
                 
-                // WineHQ Official
+                // Optional: Winetricks
                 InstallMethodCard(
-                    title: "WineHQ Official",
-                    description: "Download official Wine builds from WineHQ.org for macOS.",
-                    icon: "arrow.down.circle.fill",
+                    title: "Optional: Install Winetricks",
+                    description: "Winetricks helps install Windows libraries like DirectX, .NET, and Visual C++ runtimes.",
+                    icon: "wrench.and.screwdriver.fill",
                     color: .green,
                     steps: [
-                        "Visit wiki.winehq.org/MacOS",
-                        "Follow the installation instructions",
-                        "Click Refresh above when complete"
+                        "Run: brew install winetricks",
                     ],
-                    link: URL(string: "https://wiki.winehq.org/MacOS")
+                    copyableCommand: "brew install winetricks"
+                )
+                
+                // Apple Silicon users
+                InstallMethodCard(
+                    title: "Apple Silicon: Install Rosetta 2",
+                    description: "M1/M2/M3 Macs need Rosetta 2 to run Intel-based Wine.",
+                    icon: "cpu",
+                    color: .orange,
+                    steps: [
+                        "Run: softwareupdate --install-rosetta",
+                    ],
+                    copyableCommand: "softwareupdate --install-rosetta"
                 )
             }
         }

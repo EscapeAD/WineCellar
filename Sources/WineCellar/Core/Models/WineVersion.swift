@@ -54,7 +54,7 @@ struct WineVersion: Identifiable, Codable, Hashable {
 
 // MARK: - Wine Source
 enum WineSource: String, Codable, CaseIterable {
-    case gcenx      // Homebrew tap gcenx/wine (recommended)
+    case gcenx      // Homebrew cask (recommended)
     case wineHQ     // Official WineHQ builds
     case crossover  // CrossOver Wine (if detected)
     case custom     // User-provided binary
@@ -71,11 +71,11 @@ enum WineSource: String, Codable, CaseIterable {
     var description: String {
         switch self {
         case .gcenx:
-            return "Recommended. Install via: brew tap gcenx/wine && brew install --cask wine-stable"
+            return "Recommended. Install via: brew install --cask --no-quarantine wine-stable"
         case .wineHQ:
             return "Official builds from WineHQ.org"
         case .crossover:
-            return "Commercial Wine distribution from CodeWeavers"
+            return "Commercial Wine distribution from CodeWeavers (includes Wine 10.0)"
         case .custom:
             return "User-provided Wine installation"
         }

@@ -327,7 +327,7 @@ enum WineError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noWineInstalled:
-            return "No Wine installation found. Please install Wine via Homebrew: brew tap gcenx/wine && brew install --cask wine-stable"
+            return "No Wine installation found. Please install Wine via Homebrew:\n1. brew install --cask xquartz\n2. brew install --cask --no-quarantine wine-stable"
         case .wineBinaryNotFound(let path):
             return "Wine binary not found at: \(path)"
         case .winebootFailed(let code):
